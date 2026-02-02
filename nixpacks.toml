@@ -1,0 +1,7 @@
+[variables]
+    NIX_CONFIG = "accept-flake-config = true"
+    PORT = "3000"
+
+[start]
+    # This is exactly what you wanted
+    cmd = "nix run . -- --port 3000"
