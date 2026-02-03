@@ -8,80 +8,40 @@ import {
   ContactShadows,
   Html,
   useProgress,
-  Image,
+  useGLTF,
   Float,
   Plane,
+  Center,
 } from "@react-three/drei";
 import { Group } from "three";
 
-// MOCK DATA - Coleção DRK Studio 2025
-// Substitua estas URLs pelas suas imagens reais em /public/images/
+// TRENDING LUXURY SNEAKERS 2024-2025 - DRK Studio
 const products = [
   {
-    id: "bape-shark-runner",
-    name: "BAPE Shark Runner",
-    designer: "A Bathing Ape",
-    price: "R$ 3.890",
-    description: "Edição limitada com design icônico de tubarão. Amortecimento aeroespacial.",
-    image: "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=800&q=80",
-    color: "Black/Camo",
+    id: "af1-triple-white",
+    name: "Air Force 1 Triple White",
+    designer: "Nike",
+    price: "R$ 999",
+    description:
+      "O clássico atemporal da Nike. Design icônico em couro premium totalmente branco. Conforto e estilo para qualquer ocasião.",
+    model: "/models/af1_triple_white.glb",
+    color: "Triple White",
     category: "sneaker",
-    badge: "EDIÇÃO LIMITADA",
+    badge: "CLASSIC",
+    trend: "TIMELESS",
   },
   {
-    id: "rick-geobasket",
-    name: "Rick Owens Geo Basket",
-    designer: "Rick Owens",
-    price: "R$ 8.490",
-    description: "Couro italiano premium com solado de borracha vulcanizada. Handmade in Italy.",
-    image: "https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=800&q=80",
-    color: "Milk/White",
+    id: "miu-miu-nb-530",
+    name: "Miu Miu x New Balance 530",
+    designer: "Miu Miu",
+    price: "R$ 6.990",
+    description:
+      "A collab mais desejada de 2024. Design minimalista sem solado chunky. Mesh premium em três colorways.",
+    model: "/models/luxury-sneaker-1.gltf",
+    color: "Silver/Blue/Black",
     category: "sneaker",
-    badge: "IMPORTADO",
-  },
-  {
-    id: "balenciaga-track",
-    name: "Balenciaga Track 2.0",
-    designer: "Balenciaga",
-    price: "R$ 6.290",
-    description: "Tecnologia de amortecimento avançada. 176 componentes independentes.",
-    image: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=800&q=80",
-    color: "Triple Black",
-    category: "sneaker",
-    badge: "NOVA COLEÇÃO",
-  },
-  {
-    id: "nike-sacai",
-    name: "Nike x Sacai VaporWaffle",
-    designer: "Sacai",
-    price: "R$ 2.490",
-    description: "Colaboração exclusiva Japão. Design de camadas duplas.",
-    image: "https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?w=800&q=80",
-    color: "Villain Red",
-    category: "sneaker",
-    badge: "COLLAB",
-  },
-  {
-    id: "new-balance-550",
-    name: "New Balance 550",
-    designer: "Aimé Leon Dore",
-    price: "R$ 1.890",
-    description: "Silhueta retrô anos 80. Couro premium com detalhes em camurça.",
-    image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800&q=80",
-    color: "Natural Green",
-    category: "sneaker",
-    badge: "BESTSELLER",
-  },
-  {
-    id: "off-white-jordan",
-    name: "Air Jordan 1 x Off-White",
-    designer: "Virgil Abloh",
-    price: "R$ 12.900",
-    description: "A collab mais icônica da década. Autenticidade garantida.",
-    image: "https://images.unsplash.com/photo-1552346154-21d32810aba3?w=800&q=80",
-    color: "Chicago",
-    category: "sneaker",
-    badge: "RARIDADE",
+    badge: "COLLAB DO ANO",
+    trend: "2025 HOTTEST",
   },
 ];
 
@@ -114,7 +74,7 @@ function Loader() {
             fontWeight: 300,
           }}
         >
-          CARREGANDO COLEÇÃO
+          CARREGANDO MODELOS 3D
         </div>
         <div
           style={{
@@ -148,7 +108,7 @@ function Loader() {
   );
 }
 
-function ProductImage({
+function SneakerModel({
   product,
   position,
   isActive,
@@ -158,12 +118,18 @@ function ProductImage({
   isActive: boolean;
 }) {
   const groupRef = useRef<Group>(null);
+  const { scene } = useGLTF(product.model);
+
+  // Clone the scene for each instance
+  const clonedScene = scene.clone();
 
   useFrame((state) => {
     if (groupRef.current) {
       if (isActive) {
-        groupRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.3) * 0.08;
-        groupRef.current.position.y = position[1] + Math.sin(state.clock.elapsedTime * 0.5) * 0.08;
+        groupRef.current.rotation.y =
+          Math.sin(state.clock.elapsedTime * 0.3) * 0.08;
+        groupRef.current.position.y =
+          position[1] + Math.sin(state.clock.elapsedTime * 0.5) * 0.08;
       } else {
         groupRef.current.rotation.y = position[0] * 0.05;
         groupRef.current.position.y = position[1];
@@ -178,31 +144,19 @@ function ProductImage({
         rotationIntensity={isActive ? 0.08 : 0.2}
         floatIntensity={isActive ? 0.15 : 0.4}
       >
-        <group scale={isActive ? 2.4 : 0.85}>
-          <Image
-            url={product.image}
-            scale={[2.2, 2.2]}
-            position={[0, 0, 0]}
-            transparent
-            opacity={0.98}
-            side={2}
-          />
+        <group scale={isActive ? 1.5 : 0.55}>
+          <Center>
+            <primitive object={clonedScene} rotation={[0, -Math.PI / 4, 0]} />
+          </Center>
 
           {isActive && (
-            <Plane
-              args={[2.3, 2.3]}
-              position={[0, 0, -0.02]}
-            >
-              <meshBasicMaterial
-                color="#c9a961"
-                transparent
-                opacity={0.12}
-              />
+            <Plane args={[3, 3]} position={[0, 0, -1]} rotation={[0, 0, 0]}>
+              <meshBasicMaterial color="#c9a961" transparent opacity={0.08} />
             </Plane>
           )}
 
           {isActive && (
-            <Html position={[0, -1.6, 0]} center distanceFactor={8}>
+            <Html position={[0, -1.8, 0]} center distanceFactor={8}>
               <div
                 style={{
                   background: "rgba(0,0,0,0.95)",
@@ -236,26 +190,60 @@ function Scene({
 }) {
   return (
     <>
-      <ambientLight intensity={0.3} />
-      <directionalLight position={[8, 12, 8]} intensity={1.2} color="#fff8f0" />
-      <directionalLight position={[-8, 8, -5]} intensity={0.6} color="#c9a961" />
-      <directionalLight position={[0, 5, -10]} intensity={0.4} color="#e6e6fa" />
-      <Environment preset="studio" />
+      {/* Ambient light for base illumination */}
+      <ambientLight intensity={0.4} />
 
-      <ContactShadows
-        position={[0, -2.2, 0]}
-        opacity={0.5}
-        scale={25}
-        blur={3}
-        far={5}
+      {/* Main directional light */}
+      <directionalLight
+        position={[8, 12, 8]}
+        intensity={1.5}
+        color="#fff8f0"
+        castShadow
       />
 
-      <group position={[0, 0.3, 0]}>
+      {/* Fill light with warm tone */}
+      <directionalLight
+        position={[-8, 8, -5]}
+        intensity={0.8}
+        color="#c9a961"
+      />
+
+      {/* Back light for rim lighting */}
+      <directionalLight
+        position={[0, 5, -10]}
+        intensity={0.5}
+        color="#e6e6fa"
+      />
+
+      {/* Spot light for dramatic effect */}
+      <spotLight
+        position={[0, 15, 0]}
+        angle={0.5}
+        penumbra={0.5}
+        intensity={1}
+        color="#ffffff"
+        castShadow
+      />
+
+      {/* Environment for realistic reflections */}
+      <Environment preset="studio" />
+
+      {/* Ground shadows */}
+      <ContactShadows
+        position={[0, -2.5, 0]}
+        opacity={0.6}
+        scale={25}
+        blur={4}
+        far={6}
+      />
+
+      {/* Products group */}
+      <group position={[0, 0.5, 0]}>
         {products.map((product, index) => {
           const offset = (index - activeProduct) * 5.5;
           const zOffset = index === activeProduct ? 0 : -1.5;
           return (
-            <ProductImage
+            <SneakerModel
               key={product.id}
               product={product}
               position={[offset, 0, zOffset]}
@@ -265,15 +253,19 @@ function Scene({
         })}
       </group>
 
+      {/* Enhanced orbit controls for better zoom and detail */}
       <OrbitControls
         enablePan={false}
         enableZoom={true}
-        minDistance={5}
-        maxDistance={12}
-        minPolarAngle={Math.PI / 2.5}
+        minDistance={2}
+        maxDistance={25}
+        minPolarAngle={Math.PI / 4}
         maxPolarAngle={Math.PI / 2}
         autoRotate
         autoRotateSpeed={0.15}
+        zoomSpeed={0.8}
+        dampingFactor={0.05}
+        enableDamping={true}
       />
     </>
   );
@@ -288,14 +280,21 @@ export default function FashionShowcase() {
       style={{
         width: "100%",
         height: "100vh",
-        background: "linear-gradient(135deg, #0a0a0a 0%, #151515 50%, #0a0a0a 100%)",
+        background:
+          "linear-gradient(135deg, #0a0a0a 0%, #151515 50%, #0a0a0a 100%)",
         position: "relative",
         overflow: "hidden",
       }}
     >
       <Canvas
-        camera={{ position: [0, 0, 8], fov: 42 }}
-        gl={{ antialias: true, alpha: true }}
+        camera={{ position: [0, 1.5, 6], fov: 38 }}
+        gl={{
+          antialias: true,
+          alpha: true,
+          powerPreference: "high-performance",
+        }}
+        shadows
+        dpr={[1, 2]}
       >
         <Suspense fallback={<Loader />}>
           <Scene
@@ -305,6 +304,7 @@ export default function FashionShowcase() {
         </Suspense>
       </Canvas>
 
+      {/* Header */}
       <div
         style={{
           position: "fixed",
@@ -324,7 +324,7 @@ export default function FashionShowcase() {
             marginBottom: "6px",
           }}
         >
-          IMPORTAÇÃO EXCLUSIVA
+          COLEÇÃO TRENDING 2024-2025
         </div>
         <h1
           style={{
@@ -352,6 +352,7 @@ export default function FashionShowcase() {
         </div>
       </div>
 
+      {/* Navigation */}
       <div
         style={{
           position: "fixed",
@@ -377,14 +378,44 @@ export default function FashionShowcase() {
               padding: "8px 0",
               transition: "color 0.3s",
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = "#c9a961")}
-            onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.5)")}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = "#c9a961";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = "rgba(255,255,255,0.5)";
+            }}
           >
             {item}
           </button>
         ))}
       </div>
 
+      {/* 3D Badge */}
+      <div
+        style={{
+          position: "fixed",
+          top: "100px",
+          right: "40px",
+          zIndex: 100,
+          background: "rgba(201, 169, 97, 0.1)",
+          border: "1px solid rgba(201, 169, 97, 0.3)",
+          padding: "8px 16px",
+          borderRadius: "4px",
+        }}
+      >
+        <div
+          style={{
+            fontFamily: "Georgia, serif",
+            fontSize: "0.65rem",
+            letterSpacing: "3px",
+            color: "#c9a961",
+          }}
+        >
+          EXPERIÊNCIA 3D
+        </div>
+      </div>
+
+      {/* Product Info */}
       <div
         style={{
           position: "fixed",
@@ -408,6 +439,26 @@ export default function FashionShowcase() {
             }}
           >
             {currentProduct.badge}
+          </div>
+        )}
+
+        {(currentProduct as (typeof products)[0] & { trend?: string })
+          .trend && (
+          <div
+            style={{
+              fontFamily: "system-ui, sans-serif",
+              fontSize: "0.5rem",
+              letterSpacing: "4px",
+              color: "#ff6b6b",
+              marginBottom: "15px",
+              fontWeight: 600,
+              textTransform: "uppercase",
+            }}
+          >
+            {
+              (currentProduct as (typeof products)[0] & { trend?: string })
+                .trend
+            }
           </div>
         )}
 
@@ -505,6 +556,7 @@ export default function FashionShowcase() {
         </div>
       </div>
 
+      {/* Product Navigation */}
       <div
         style={{
           position: "fixed",
@@ -569,6 +621,7 @@ export default function FashionShowcase() {
         ))}
       </div>
 
+      {/* Enhanced Instructions */}
       <div
         style={{
           position: "fixed",
@@ -580,9 +633,32 @@ export default function FashionShowcase() {
           letterSpacing: "2px",
           color: "rgba(255,255,255,0.2)",
           zIndex: 100,
+          textAlign: "center",
         }}
       >
-        CLIQUE NA LISTA PARA NAVEGAR • ARRASTE PARA ROTACIONAR
+        CLIQUE NA LISTA PARA NAVEGAR • SCROLL PARA ZOOM • ARRASTE PARA
+        ROTACIONAR
+      </div>
+
+      {/* Zoom indicator */}
+      <div
+        style={{
+          position: "fixed",
+          bottom: "50px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          fontFamily: "system-ui, sans-serif",
+          fontSize: "0.5rem",
+          letterSpacing: "3px",
+          color: "#c9a961",
+          zIndex: 100,
+          opacity: 0.6,
+          padding: "4px 12px",
+          border: "1px solid rgba(201, 169, 97, 0.3)",
+          borderRadius: "2px",
+        }}
+      >
+        2x ZOOM ATIVADO
       </div>
     </div>
   );
