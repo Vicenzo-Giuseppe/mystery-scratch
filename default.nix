@@ -51,15 +51,7 @@ bun2nix.mkDerivation {
     mkdir -p $out/share/$pname
     mkdir -p $out/bin
 
-    # Copy the built static site from dist directory
-    # Next.js export puts everything here including copied public assets
-    if [ -d "dist" ]; then
-      cp -r dist/* $out/share/$pname/
-      echo "Copied built site from dist/"
-    else
-      echo "Warning: dist directory not found, copying from public/"
       cp -r public/* $out/share/$pname/
-    fi
 
     # Debug: List what's in the models directory
     if [ -d "$out/share/$pname/models" ]; then
