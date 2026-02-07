@@ -23,7 +23,82 @@ import { Model3DViewer } from "@/components/viewer/Model3DViewer";
 import Link from "next/link";
 
 function Loader() {
-  const { progress } = useProgress();
+  const { progress, errors } = useProgress();
+  const [loadingTimeout, setLoadingTimeout] = useState(false);
+
+  // Add timeout to prevent infinite loading
+  useState(() => {
+    const timer = setTimeout(() => {
+      if (progress < 100) {
+        setLoadingTimeout(true);
+      }
+    }, 30000); // 30 second timeout
+    return () => clearTimeout(timer);
+  });
+
+  if (loadingTimeout && progress < 100) {
+    return (
+      <Html center>
+        <div
+          style={{
+            color: "white",
+            fontFamily: "Georgia, serif",
+            textAlign: "center",
+            letterSpacing: "3px",
+            maxWidth: "300px",
+          }}
+        >
+          <div
+            style={{
+              fontSize: "1.1rem",
+              marginBottom: "2rem",
+              fontWeight: 300,
+              color: "#c9a961",
+            }}
+          >
+            DRK STUDIO
+          </div>
+          <div
+            style={{
+              fontSize: "0.9rem",
+              marginBottom: "2rem",
+              fontWeight: 300,
+              color: "#ff6b6b",
+            }}
+          >
+            Erro ao carregar modelos
+          </div>
+          <div
+            style={{
+              fontSize: "0.75rem",
+              marginBottom: "1rem",
+              color: "rgba(255,255,255,0.7)",
+            }}
+          >
+            Alguns modelos 3D não puderam ser carregados.
+          </div>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            style={{
+              padding: "10px 20px",
+              background: "#c9a961",
+              border: "none",
+              color: "#0a0a0a",
+              fontFamily: "Georgia, serif",
+              fontSize: "0.75rem",
+              letterSpacing: "2px",
+              cursor: "pointer",
+              marginTop: "1rem",
+            }}
+          >
+            TENTAR NOVAMENTE
+          </button>
+        </div>
+      </Html>
+    );
+  }
+
   return (
     <Html center>
       <div
@@ -80,6 +155,18 @@ function Loader() {
         >
           {Math.round(progress)}%
         </div>
+        {errors.length > 0 && (
+          <div
+            style={{
+              fontSize: "0.6rem",
+              marginTop: "0.5rem",
+              color: "#ff6b6b",
+              opacity: 0.7,
+            }}
+          >
+            {errors.length} erro(s) de carregamento
+          </div>
+        )}
       </div>
     </Html>
   );
