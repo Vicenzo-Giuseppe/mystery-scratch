@@ -4,7 +4,6 @@ import { useRef, Suspense } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import {
   OrbitControls,
-  Environment,
   ContactShadows,
   Html,
   useProgress,
@@ -85,7 +84,6 @@ function Scene({ product }: { product: Product }) {
         color="#ffffff"
       />
 
-      <Environment preset="studio" />
       <ContactShadows
         position={[0, -1.5, 0]}
         opacity={0.4}
