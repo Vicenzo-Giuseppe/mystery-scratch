@@ -15,7 +15,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body style={{ margin: 0, padding: 0, overflow: "hidden" }}>
+      <body style={{ margin: 0, padding: 0 }}>
         {children}
         <Toaster
           position="top-right"
