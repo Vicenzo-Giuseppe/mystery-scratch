@@ -89,6 +89,10 @@
     url = "https://registry.npmjs.org/@emnapi/wasi-threads/-/wasi-threads-1.1.0.tgz";
     hash = "sha512-WI0DdZ8xFSbgMjR1sFsKABJ/C5OnRrjT06JXbZKexJGrDuPTzZdDYfFlsgcCXCyf+suG5QU2e/y1Wo2V/OapLQ==";
   };
+  "@gsap/react@2.1.2" = fetchurl {
+    url = "https://registry.npmjs.org/@gsap/react/-/react-2.1.2.tgz";
+    hash = "sha512-JqliybO1837UcgH2hVOM4VO+38APk3ECNrsuSM4MuXp+rbf+/2IG2K1YJiqfTcXQHH7XlA0m3ykniFYstfq0Iw==";
+  };
   "@img/colour@1.0.0" = fetchurl {
     url = "https://registry.npmjs.org/@img/colour/-/colour-1.0.0.tgz";
     hash = "sha512-A5P/LfWGFSl6nsckYtjw9da+19jB8hkJ6ACTGcDfEJ0aE+l2n2El7dsVM7UVHZQ9s2lmYMWlrS21YLy2IR1LUw==";
@@ -480,6 +484,10 @@
   "graceful-fs@4.2.11" = fetchurl {
     url = "https://registry.npmjs.org/graceful-fs/-/graceful-fs-4.2.11.tgz";
     hash = "sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==";
+  };
+  "gsap@3.14.2" = fetchurl {
+    url = "https://registry.npmjs.org/gsap/-/gsap-3.14.2.tgz";
+    hash = "sha512-P8/mMxVLU7o4+55+1TCnQrPmgjPKnwkzkXOK1asnR9Jg2lna4tEY5qBJjMmAaOBDDZWtlRjBXjLa0w53G/uBLA==";
   };
   "hls.js@1.6.15" = fetchurl {
     url = "https://registry.npmjs.org/hls.js/-/hls.js-1.6.15.tgz";
