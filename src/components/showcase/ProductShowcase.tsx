@@ -1,40 +1,28 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
-import {
-  motion,
-  useScroll,
-  useTransform,
-  AnimatePresence,
-} from "framer-motion";
+import { useRef, useState } from "react";
+import { motion } from "framer-motion";
 import { products } from "@/data/products";
 import { useCartStore } from "@/store/cartStore";
 import { CartDrawer } from "@/components/cart/CartDrawer";
-import { AddToCartButton } from "@/components/cart/AddToCartButton";
 import { Mini3DViewer } from "@/components/showcase/Mini3DViewer";
 import { ProductCard } from "@/components/showcase/ProductCard";
 import { HeroSection } from "@/components/showcase/HeroSection";
 import { FilterBar } from "@/components/showcase/FilterBar";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
 
 export default function ProductShowcase() {
   const [activeProduct, setActiveProduct] = useState(0);
   const [filter, setFilter] = useState("all");
+  const [isHeaderVisible, setIsHeaderVisible] = useState(false);
   const { toggleCart, getTotalItems } = useCartStore();
   const totalItems = getTotalItems();
-  const containerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<HTMLDivElement>(null);
 
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"],
-  });
-
-  const headerOpacity = useTransform(scrollYProgress, [0, 0.1], [0, 1]);
-  const heroScale = useTransform(scrollYProgress, [0, 0.2], [1, 0.95]);
+  // Simple scroll handler for header visibility
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const scrollTop = e.currentTarget.scrollTop;
+    setIsHeaderVisible(scrollTop > 100);
+  };
 
   const filteredProducts =
     filter === "all"
@@ -46,34 +34,36 @@ export default function ProductShowcase() {
 
   const handleProductClick = (index: number) => {
     setActiveProduct(index);
-    // Smooth scroll to 3D viewer
     viewerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
 
   return (
     <div
-      ref={containerRef}
+      onScroll={handleScroll}
       style={{
-        minHeight: "100vh",
+        height: "100vh",
+        overflowY: "auto",
+        overflowX: "hidden",
         background:
           "linear-gradient(180deg, #0a0a0a 0%, #111111 50%, #0a0a0a 100%)",
-        position: "relative",
-        overflowX: "hidden",
       }}
     >
-      {/* Sticky Header */}
+      {/* Header - Always visible on scroll */}
       <motion.header
+        initial={{ y: -100 }}
+        animate={{ y: isHeaderVisible ? 0 : -100 }}
+        transition={{ duration: 0.3 }}
         style={{
           position: "fixed",
           top: 0,
           left: 0,
           right: 0,
-          zIndex: 100,
+          zIndex: 1000,
           padding: "20px 40px",
-          background: "rgba(10, 10, 10, 0.8)",
+          background: "rgba(10, 10, 10, 0.95)",
           backdropFilter: "blur(20px)",
-          borderBottom: "1px solid rgba(201, 169, 97, 0.1)",
-          opacity: headerOpacity,
+          borderBottom: "1px solid rgba(201, 169, 97, 0.2)",
+          pointerEvents: isHeaderVisible ? "auto" : "none",
         }}
       >
         <div
@@ -85,9 +75,7 @@ export default function ProductShowcase() {
             alignItems: "center",
           }}
         >
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
+          <div
             style={{
               fontFamily: "Georgia, serif",
               fontSize: "1.5rem",
@@ -97,16 +85,20 @@ export default function ProductShowcase() {
             }}
           >
             DRK STUDIO
-          </motion.div>
+          </div>
 
           <div style={{ display: "flex", gap: "30px", alignItems: "center" }}>
-            {["COLEÇÃO", "SOBRE", "CONTATO"].map((item, i) => (
-              <motion.button
-                key={item}
+            {["COLEÇÃO", "SOBRE", "CONTATO"].map((item) => (
+              <button
                 type="button"
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
+                key={item}
+                onClick={() => {
+                  if (item === "COLEÇÃO") {
+                    document
+                      .getElementById("products")
+                      ?.scrollIntoView({ behavior: "smooth" });
+                  }
+                }}
                 style={{
                   background: "transparent",
                   border: "none",
@@ -116,6 +108,7 @@ export default function ProductShowcase() {
                   letterSpacing: "2px",
                   cursor: "pointer",
                   transition: "color 0.3s",
+                  padding: "8px 12px",
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.color = "#c9a961";
@@ -125,13 +118,11 @@ export default function ProductShowcase() {
                 }}
               >
                 {item}
-              </motion.button>
+              </button>
             ))}
 
-            <motion.button
+            <button
               type="button"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
               onClick={toggleCart}
               style={{
                 background: "transparent",
@@ -152,9 +143,7 @@ export default function ProductShowcase() {
               <span>🛒</span>
               <span>CARRINHO</span>
               {totalItems > 0 && (
-                <motion.span
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
+                <span
                   style={{
                     position: "absolute",
                     top: "-8px",
@@ -172,23 +161,22 @@ export default function ProductShowcase() {
                   }}
                 >
                   {totalItems}
-                </motion.span>
+                </span>
               )}
-            </motion.button>
+            </button>
           </div>
         </div>
       </motion.header>
 
       {/* Hero Section */}
-      <motion.div style={{ scale: heroScale }}>
-        <HeroSection />
-      </motion.div>
+      <HeroSection />
 
       {/* Filter Bar */}
       <FilterBar filter={filter} setFilter={setFilter} />
 
       {/* Product Grid Section */}
       <section
+        id="products"
         style={{
           padding: "80px 40px",
           maxWidth: "1400px",
@@ -230,43 +218,35 @@ export default function ProductShowcase() {
           </p>
         </motion.div>
 
-        {/* Bento Grid Layout */}
+        {/* Product Grid */}
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)",
-            gap: "24px",
-            gridAutoRows: "400px",
+            gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+            gap: "30px",
           }}
         >
-          {filteredProducts.map((product, index) => {
-            // Create bento grid pattern
-            const isLarge = index === 0 || index === 3 || index === 6;
-            const span = isLarge ? 2 : 1;
-
-            return (
-              <ProductCard
-                key={product.id}
-                product={product}
-                index={index}
-                isActive={index === activeProduct}
-                onClick={() => handleProductClick(index)}
-                gridSpan={span}
-              />
-            );
-          })}
+          {filteredProducts.map((product, index) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              index={index}
+              isActive={index === activeProduct}
+              onClick={() => handleProductClick(index)}
+            />
+          ))}
         </div>
       </section>
 
       {/* 3D Viewer Section */}
       <section
         ref={viewerRef}
+        id="viewer"
         style={{
-          minHeight: "60vh",
+          minHeight: "80vh",
           background: "linear-gradient(180deg, #0a0a0a 0%, #050505 100%)",
           borderTop: "1px solid rgba(201, 169, 97, 0.2)",
-          position: "relative",
-          padding: "60px 40px",
+          padding: "80px 40px",
         }}
       >
         <motion.div
@@ -279,16 +259,11 @@ export default function ProductShowcase() {
             margin: "0 auto",
           }}
         >
-          <div
-            style={{
-              textAlign: "center",
-              marginBottom: "40px",
-            }}
-          >
+          <div style={{ textAlign: "center", marginBottom: "40px" }}>
             <h2
               style={{
                 fontFamily: "Georgia, serif",
-                fontSize: "2rem",
+                fontSize: "2.5rem",
                 color: "#c9a961",
                 marginBottom: "12px",
                 letterSpacing: "2px",
@@ -299,7 +274,7 @@ export default function ProductShowcase() {
             <p
               style={{
                 fontFamily: "system-ui, sans-serif",
-                fontSize: "0.9rem",
+                fontSize: "1rem",
                 color: "rgba(255,255,255,0.5)",
               }}
             >
@@ -321,7 +296,7 @@ export default function ProductShowcase() {
               display: "flex",
               justifyContent: "center",
               gap: "12px",
-              marginTop: "30px",
+              marginTop: "40px",
               flexWrap: "wrap",
             }}
           >
@@ -331,27 +306,25 @@ export default function ProductShowcase() {
                 key={product.id}
                 onClick={() => setActiveProduct(index)}
                 style={{
-                  padding: "8px 16px",
+                  padding: "10px 20px",
                   background:
                     index === activeProduct
-                      ? "rgba(201, 169, 97, 0.2)"
+                      ? "#c9a961"
                       : "rgba(255,255,255,0.05)",
-                  border:
-                    index === activeProduct
-                      ? "1px solid #c9a961"
-                      : "1px solid rgba(255,255,255,0.1)",
+                  border: "none",
                   borderRadius: "4px",
                   color:
                     index === activeProduct
-                      ? "#c9a961"
-                      : "rgba(255,255,255,0.6)",
+                      ? "#0a0a0a"
+                      : "rgba(255,255,255,0.7)",
                   fontFamily: "system-ui, sans-serif",
-                  fontSize: "0.75rem",
+                  fontSize: "0.8rem",
                   cursor: "pointer",
                   transition: "all 0.3s",
+                  fontWeight: index === activeProduct ? 600 : 400,
                 }}
               >
-                {product.name.split(" ").slice(0, 2).join(" ")}
+                {product.name}
               </button>
             ))}
           </div>
@@ -364,12 +337,13 @@ export default function ProductShowcase() {
           padding: "60px 40px",
           borderTop: "1px solid rgba(255,255,255,0.1)",
           textAlign: "center",
+          background: "#050505",
         }}
       >
         <div
           style={{
             fontFamily: "Georgia, serif",
-            fontSize: "1.2rem",
+            fontSize: "1.5rem",
             color: "#c9a961",
             letterSpacing: "4px",
             marginBottom: "20px",
@@ -380,7 +354,7 @@ export default function ProductShowcase() {
         <div
           style={{
             fontFamily: "system-ui, sans-serif",
-            fontSize: "0.8rem",
+            fontSize: "0.85rem",
             color: "rgba(255,255,255,0.4)",
             letterSpacing: "2px",
           }}

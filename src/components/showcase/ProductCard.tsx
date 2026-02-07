@@ -10,7 +10,7 @@ interface ProductCardProps {
   index: number;
   isActive: boolean;
   onClick: () => void;
-  gridSpan: number;
+  gridSpan?: number;
 }
 
 export function ProductCard({
