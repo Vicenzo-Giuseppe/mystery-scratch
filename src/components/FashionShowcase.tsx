@@ -14,36 +14,13 @@ import {
   Center,
 } from "@react-three/drei";
 import { Group } from "three";
-
-// TRENDING LUXURY SNEAKERS 2024-2025 - DRK Studio
-const products = [
-  {
-    id: "af1-triple-white",
-    name: "Air Force 1 Triple White",
-    designer: "Nike",
-    price: "R$ 999",
-    description:
-      "O clássico atemporal da Nike. Design icônico em couro premium totalmente branco. Conforto e estilo para qualquer ocasião.",
-    model: "/models/af1_triple_white.glb",
-    color: "Triple White",
-    category: "sneaker",
-    badge: "CLASSIC",
-    trend: "TIMELESS",
-  },
-  {
-    id: "miu-miu-nb-530",
-    name: "Miu Miu x New Balance 530",
-    designer: "Miu Miu",
-    price: "R$ 6.990",
-    description:
-      "A collab mais desejada de 2024. Design minimalista sem solado chunky. Mesh premium em três colorways.",
-    model: "/models/luxury-sneaker-1.gltf",
-    color: "Silver/Blue/Black",
-    category: "sneaker",
-    badge: "COLLAB DO ANO",
-    trend: "2025 HOTTEST",
-  },
-];
+import { motion } from "framer-motion";
+import { products } from "@/data/products";
+import { useCartStore } from "@/store/cartStore";
+import { CartDrawer } from "@/components/cart/CartDrawer";
+import { AddToCartButton } from "@/components/cart/AddToCartButton";
+import { Model3DViewer } from "@/components/viewer/Model3DViewer";
+import Link from "next/link";
 
 function Loader() {
   const { progress } = useProgress();
@@ -120,7 +97,6 @@ function SneakerModel({
   const groupRef = useRef<Group>(null);
   const { scene } = useGLTF(product.model);
 
-  // Clone the scene for each instance
   const clonedScene = scene.clone();
 
   useFrame((state) => {
@@ -171,7 +147,7 @@ function SneakerModel({
                   letterSpacing: "1px",
                 }}
               >
-                {product.price}
+                {product.priceFormatted}
               </div>
             </Html>
           )}
@@ -190,32 +166,23 @@ function Scene({
 }) {
   return (
     <>
-      {/* Ambient light for base illumination */}
       <ambientLight intensity={0.4} />
-
-      {/* Main directional light */}
       <directionalLight
         position={[8, 12, 8]}
         intensity={1.5}
         color="#fff8f0"
         castShadow
       />
-
-      {/* Fill light with warm tone */}
       <directionalLight
         position={[-8, 8, -5]}
         intensity={0.8}
         color="#c9a961"
       />
-
-      {/* Back light for rim lighting */}
       <directionalLight
         position={[0, 5, -10]}
         intensity={0.5}
         color="#e6e6fa"
       />
-
-      {/* Spot light for dramatic effect */}
       <spotLight
         position={[0, 15, 0]}
         angle={0.5}
@@ -224,11 +191,7 @@ function Scene({
         color="#ffffff"
         castShadow
       />
-
-      {/* Environment for realistic reflections */}
       <Environment preset="studio" />
-
-      {/* Ground shadows */}
       <ContactShadows
         position={[0, -2.5, 0]}
         opacity={0.6}
@@ -237,7 +200,6 @@ function Scene({
         far={6}
       />
 
-      {/* Products group */}
       <group position={[0, 0.5, 0]}>
         {products.map((product, index) => {
           const offset = (index - activeProduct) * 5.5;
@@ -253,7 +215,6 @@ function Scene({
         })}
       </group>
 
-      {/* Enhanced orbit controls for better zoom and detail */}
       <OrbitControls
         enablePan={false}
         enableZoom={true}
@@ -273,7 +234,10 @@ function Scene({
 
 export default function FashionShowcase() {
   const [activeProduct, setActiveProduct] = useState(0);
+  const [isViewerOpen, setIsViewerOpen] = useState(false);
+  const { toggleCart, getTotalItems } = useCartStore();
   const currentProduct = products[activeProduct];
+  const totalItems = getTotalItems();
 
   return (
     <div
@@ -326,7 +290,8 @@ export default function FashionShowcase() {
         >
           COLEÇÃO TRENDING 2024-2025
         </div>
-        <h1
+        <Link
+          href="/"
           style={{
             fontFamily: "Georgia, serif",
             fontSize: "2.8rem",
@@ -335,10 +300,11 @@ export default function FashionShowcase() {
             letterSpacing: "14px",
             margin: 0,
             textShadow: "0 2px 20px rgba(201, 169, 97, 0.2)",
+            textDecoration: "none",
           }}
         >
           DRK STUDIO
-        </h1>
+        </Link>
         <div
           style={{
             fontFamily: "Georgia, serif",
@@ -361,6 +327,7 @@ export default function FashionShowcase() {
           zIndex: 100,
           display: "flex",
           gap: "25px",
+          alignItems: "center",
         }}
       >
         {["COLEÇÃO", "SOBRE", "CONTATO"].map((item) => (
@@ -388,10 +355,59 @@ export default function FashionShowcase() {
             {item}
           </button>
         ))}
+
+        {/* Cart Button */}
+        <button
+          type="button"
+          onClick={toggleCart}
+          style={{
+            background: "transparent",
+            border: "1px solid rgba(201, 169, 97, 0.3)",
+            color: "#c9a961",
+            fontFamily: "Georgia, serif",
+            fontSize: "0.7rem",
+            letterSpacing: "2px",
+            cursor: "pointer",
+            padding: "10px 16px",
+            borderRadius: "4px",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            transition: "all 0.3s",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "rgba(201, 169, 97, 0.1)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "transparent";
+          }}
+        >
+          <span>🛒</span>
+          <span>CARRINHO</span>
+          {totalItems > 0 && (
+            <span
+              style={{
+                background: "#c9a961",
+                color: "#0a0a0a",
+                borderRadius: "50%",
+                width: "20px",
+                height: "20px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "0.7rem",
+                fontWeight: 600,
+              }}
+            >
+              {totalItems}
+            </span>
+          )}
+        </button>
       </div>
 
       {/* 3D Badge */}
-      <div
+      <button
+        type="button"
         style={{
           position: "fixed",
           top: "100px",
@@ -401,6 +417,15 @@ export default function FashionShowcase() {
           border: "1px solid rgba(201, 169, 97, 0.3)",
           padding: "8px 16px",
           borderRadius: "4px",
+          cursor: "pointer",
+          transition: "all 0.3s",
+        }}
+        onClick={() => setIsViewerOpen(true)}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = "rgba(201, 169, 97, 0.2)";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = "rgba(201, 169, 97, 0.1)";
         }}
       >
         <div
@@ -411,9 +436,9 @@ export default function FashionShowcase() {
             color: "#c9a961",
           }}
         >
-          EXPERIÊNCIA 3D
+          EXPERIÊNCIA 3D ↗
         </div>
-      </div>
+      </button>
 
       {/* Product Info */}
       <div
@@ -527,32 +552,10 @@ export default function FashionShowcase() {
               letterSpacing: "1px",
             }}
           >
-            {currentProduct.price}
+            {currentProduct.priceFormatted}
           </div>
 
-          <button
-            type="button"
-            style={{
-              background: "#c9a961",
-              border: "none",
-              padding: "14px 36px",
-              color: "#0a0a0a",
-              fontFamily: "Georgia, serif",
-              fontSize: "0.75rem",
-              letterSpacing: "3px",
-              cursor: "pointer",
-              fontWeight: 600,
-              transition: "all 0.3s",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "#ffffff";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "#c9a961";
-            }}
-          >
-            RESERVAR
-          </button>
+          <AddToCartButton product={currentProduct} />
         </div>
       </div>
 
@@ -621,7 +624,7 @@ export default function FashionShowcase() {
         ))}
       </div>
 
-      {/* Enhanced Instructions */}
+      {/* Instructions */}
       <div
         style={{
           position: "fixed",
@@ -660,7 +663,16 @@ export default function FashionShowcase() {
       >
         2x ZOOM ATIVADO
       </div>
+
+      {/* Cart Drawer */}
+      <CartDrawer />
+
+      {/* 3D Model Viewer Modal */}
+      <Model3DViewer
+        product={currentProduct}
+        isOpen={isViewerOpen}
+        onClose={() => setIsViewerOpen(false)}
+      />
     </div>
   );
 }
-// Build timestamp: ter 03 fev 2026 01:01:24 -03

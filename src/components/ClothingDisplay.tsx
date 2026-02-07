@@ -15,6 +15,7 @@ import { Sneaker } from "./clothing/Sneaker";
 import { Jacket } from "./clothing/Jacket";
 import { CharacterBase } from "./clothing/CharacterBase";
 import { ClothingControls } from "./clothing/ClothingControls";
+import type { ClothingItem } from "@/types/clothing";
 
 function Loader() {
   const { progress } = useProgress();
@@ -62,8 +63,8 @@ function Scene({
 }: {
   currentOutfit: "casual" | "street" | "formal" | "sporty";
   setCurrentOutfit: (outfit: "casual" | "street" | "formal" | "sporty") => void;
-  selectedItem: string | null;
-  setSelectedItem: (item: string | null) => void;
+  selectedItem: ClothingItem | null;
+  setSelectedItem: (item: ClothingItem | null) => void;
   rotationSpeed: number;
 }) {
   const groupRef = useRef<Group>(null);
@@ -120,7 +121,11 @@ function Scene({
         castShadow
         shadow-mapSize={[2048, 2048]}
       />
-      <directionalLight position={[-5, 5, -5]} intensity={0.8} color="#ff99cc" />
+      <directionalLight
+        position={[-5, 5, -5]}
+        intensity={0.8}
+        color="#ff99cc"
+      />
       <pointLight position={[0, 5, 0]} intensity={0.5} color="#ffffff" />
 
       <Environment preset="city" />
@@ -137,7 +142,7 @@ function Scene({
         <CharacterBase
           outfit={currentOutfit}
           selectedItem={selectedItem}
-          onItemClick={setSelectedItem}
+          onItemClick={(item: ClothingItem) => setSelectedItem(item)}
         />
 
         <Float
@@ -204,11 +209,18 @@ export default function ClothingDisplay() {
   const [currentOutfit, setCurrentOutfit] = useState<
     "casual" | "street" | "formal" | "sporty"
   >("casual");
-  const [selectedItem, setSelectedItem] = useState<string | null>(null);
+  const [selectedItem, setSelectedItem] = useState<ClothingItem | null>(null);
   const [rotationSpeed, setRotationSpeed] = useState(0.5);
 
   return (
-    <div style={{ width: "100%", height: "100vh", background: "#0a0a0a", position: "relative" }}>
+    <div
+      style={{
+        width: "100%",
+        height: "100vh",
+        background: "#0a0a0a",
+        position: "relative",
+      }}
+    >
       <Canvas
         camera={{ position: [0, 1, 6], fov: 50 }}
         shadows
@@ -224,7 +236,7 @@ export default function ClothingDisplay() {
           />
         </Suspense>
       </Canvas>
-      
+
       <ClothingControls
         currentOutfit={currentOutfit}
         onOutfitChange={setCurrentOutfit}
