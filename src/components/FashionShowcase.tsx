@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, Suspense } from "react";
+import { useRef, useState, useEffect, Suspense } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import {
   OrbitControls,
@@ -27,14 +27,14 @@ function Loader() {
   const [loadingTimeout, setLoadingTimeout] = useState(false);
 
   // Add timeout to prevent infinite loading
-  useState(() => {
+  useEffect(() => {
     const timer = setTimeout(() => {
       if (progress < 100) {
         setLoadingTimeout(true);
       }
     }, 30000); // 30 second timeout
     return () => clearTimeout(timer);
-  });
+  }, [progress]);
 
   if (loadingTimeout && progress < 100) {
     return (
